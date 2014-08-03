@@ -8,6 +8,7 @@ AUTHOR='Shammel Lee'
 # the order of these IS_* variables is important...
 IS_SRC_DIR='src'
 IS_BUILD_DIR='build'
+IS_SUPPORT_DIR='support'
 IS_TEST_DIR='test'
 
 IS_SRC_COFFEE_DIR="${IS_SRC_DIR}/coffee"
@@ -16,31 +17,37 @@ IS_SRC_IMG_DIR="${IS_SRC_DIR}/img"
 IS_SRC_JADE_DIR="${IS_SRC_DIR}/jade"
 IS_SRC_JADE_INC_DIR="${IS_SRC_JADE_DIR}/inc"
 IS_SRC_JADE_TEST_DIR="${IS_SRC_JADE_DIR}/test"
+IS_SRC_JINJA_DIR="${IS_SRC_DIR}/jinja"
+IS_SRC_SPRITES_DIR="${IS_SRC_IMG_DIR}/sprites"
 IS_SRC_STYL_DIR="${IS_SRC_DIR}/styl"
 IS_SRC_STYL_INC_DIR="${IS_SRC_STYL_DIR}/inc"
 IS_SRC_STYL_TEST_DIR="${IS_SRC_STYL_DIR}/test"
 IS_SRC_VENDOR_DIR="${IS_SRC_DIR}/vendor"
 
-IS_BUILD_CSS_DIR="${IS_BUILD_DIR}/css"
-IS_BUILD_IMG_DIR="${IS_BUILD_DIR}/img"
-IS_BUILD_JS_DIR="${IS_BUILD_DIR}/js"
-IS_BUILD_VENDOR_DIR="${IS_BUILD_DIR}/vendor"
+IS_BUILD_CSS_NAME='css'
+IS_BUILD_IMG_NAME='img'
+IS_BUILD_JS_NAME='js'
+IS_BUILD_VENDOR_NAME='vendor'
+IS_BUILD_CSS_DIR="${IS_BUILD_DIR}/${IS_BUILD_CSS_NAME}"
+IS_BUILD_IMG_DIR="${IS_BUILD_DIR}/${IS_BUILD_IMG_NAME}"
+IS_BUILD_JS_DIR="${IS_BUILD_DIR}/${IS_BUILD_JS_NAME}"
+IS_BUILD_VENDOR_DIR="${IS_BUILD_DIR}/${IS_BUILD_VENDOR_NAME}"
+IS_BUILD_DIRS="${IS_BUILD_CSS_NAME} ${IS_BUILD_IMG_NAME} ${IS_BUILD_JS_NAME} ${IS_BUILD_VENDOR_NAME}"
 
 mkdir -p\
 	${IS_SRC_COFFEE_DIR}\
 	${IS_SRC_COFFEE_TEST_DIR}\
-	${IS_SRC_IMG_DIR}\
 	${IS_SRC_JADE_DIR}\
 	${IS_SRC_JADE_INC_DIR}\
 	${IS_SRC_JADE_TEST_DIR}\
+	${IS_SRC_JINJA_DIR}\
+	${IS_SRC_SPRITES_DIR}\
 	${IS_SRC_STYL_DIR}\
 	${IS_SRC_STYL_INC_DIR}\
 	${IS_SRC_STYL_TEST_DIR}\
 	${IS_SRC_VENDOR_DIR}\
-	${IS_BUILD_CSS_DIR}\
-	${IS_BUILD_IMG_DIR}\
-	${IS_BUILD_JS_DIR}\
-	${IS_BUILD_VENDOR_DIR}\
+	${IS_BUILD_DIR}\
+	${IS_SUPPORT_DIR}\
 	${IS_TEST_DIR}
 
 # create coffeescript files unless they exist
@@ -61,7 +68,20 @@ do
 	f="${IS_SRC_JADE_DIR}/${file}.jade"
 	if [ ! -e $f ]
 	then
-		touch $f
+		case "${file}" in
+		'index')
+		cat <<TEXT > $f
+doctype strict
+html(lang='en')
+	head
+		meta(charset='utf-8')
+	body
+TEXT
+			;;
+
+			*) touch $f
+			;;
+		esac
 	fi
 done
 
@@ -76,6 +96,7 @@ do
 		'main')
 		cat <<-TEXT > $f
 		@require 'nib'
+		global-reset()
 		@require 'inc'
 TEXT
 			;;
@@ -127,11 +148,11 @@ fi
 readme='Readme.md'
 if [ ! -e $readme ]
 then
-cat <<EOF > $readme
-# ${COMPANY_NAME}
-[${COMPANY_URL}](${FULL_COMPANY_URL} "${COMPANY_NAME} website")
-**author:** ${AUTHOR}
-$(date)
+cat <<-EOF > $readme
+	# ${COMPANY_NAME}
+	[${COMPANY_URL}](${FULL_COMPANY_URL} "${COMPANY_NAME} website")
+	**author:** ${AUTHOR}
+	$(date)
 EOF
 fi
 
@@ -140,15 +161,16 @@ makefile='Makefile'
 if [ ! -e $makefile ]
 then
 cat <<EOF > $makefile
-.PHONY: all clean main \$(DEV_DEPS) \$(PROD_DEPS) test
+.PHONY: all clean \$(DEV_DEPS) \$(PROD_DEPS) test
 
 # CONFIG
-SHELL     := /bin/bash
-MAKEFLAGS  = -j \$(words \$(DEV_DEPS)) # limit parallel recipe execution
+SHELL    := /bin/bash
+MAKEFLAGS = -j \$(words \$(DEV_DEPS)) # limit parallel recipe execution
 
 # DIRECTORIES
 SRC.DIR            := ${IS_SRC_DIR}
 BUILD.DIR          := ${IS_BUILD_DIR}
+SUPPORT.DIR        := ${IS_SUPPORT_DIR}
 TEST.DIR           := ${IS_TEST_DIR}
 
 SRC.COFFEE_DIR      = \$(SRC.DIR)/coffee
@@ -157,42 +179,88 @@ SRC.IMG_DIR         = \$(SRC.DIR)/img
 SRC.JADE_DIR        = \$(SRC.DIR)/jade
 SRC.JADE_INC_DIR    = \$(SRC.JADE_DIR)/inc
 SRC.JADE_TEST_DIR   = \$(SRC.JADE_DIR)/test
+SRC.JINJA_DIR       = \$(SRC.DIR)/jinja
 SRC.STYLUS_DIR      = \$(SRC.DIR)/styl
 SRC.STYLUS_INC_DIR  = \$(SRC.STYLUS_DIR)/inc
 SRC.STYLUS_TEST_DIR = \$(SRC.STYLUS_DIR)/test
 SRC.VENDOR_DIR      = \$(SRC.DIR)/vendor
 
-BUILD.CSS_DIR       = \$(BUILD.DIR)/css
-BUILD.IMG_DIR       = \$(BUILD.DIR)/img
-BUILD.JS_DIR        = \$(BUILD.DIR)/js
-BUILD.VENDOR_DIR    = \$(BUILD.DIR)/vendor
+BUILD.CSS_NAME     := css
+BUILD.IMG_NAME     := img
+BUILD.JS_NAME      := js
+BUILD.VENDOR_NAME  := vendor
+BUILD.CSS_DIR       = \$(BUILD.DIR)/\$(BUILD.CSS_NAME)
+BUILD.IMG_DIR       = \$(BUILD.DIR)/\$(BUILD.IMG_NAME)
+BUILD.JS_DIR        = \$(BUILD.DIR)/\$(BUILD.JS_NAME)
+BUILD.VENDOR_DIR    = \$(BUILD.DIR)/\$(BUILD.VENDOR_NAME)
+BUILD.DIRS         := \$(BUILD.CSS_NAME)
+BUILD.DIRS         += \$(BUILD.IMG_NAME)
+BUILD.DIRS         += \$(BUILD.JS_NAME)
+BUILD.DIRS         += \$(BUILD.VENDOR_NAME)
 
 # DEPENDENCIES
-DEV_DEPS           := dev.coffee dev.jade dev.styl
-PROD_DEPS           = \$(DEV_DEPS:dev.%=prod.%)
+DEV_DEPS := dev.dirs dev.coffee dev.jade dev.styl
+PROD_DEPS = \$(DEV_DEPS:dev.%=prod.%)
 
 # COMMANDS
-JADE.CMD            = jade \$(JADE.FLAGS)
-JADE.FLAGS         := --pretty
-COFFEE.CMD          = coffee \$(COFFEE.FLAGS)
-COFFEE.FLAGS       := --compile --no-header
-STYLUS.CMD          = stylus \$(STYLUS.FLAGS)
-STYLUS.FLAGS       := --use 'nib'
-MOCHA.CMD           = mocha \$(MOCHA.FLAGS)
-MOCHA.FLAGS         = --compilers coffee:coffee-script/register --require chai --ui \$(MOCHA.INTERFACE) --reporter \$(MOCHA.REPORTER)
-MOCHA.INTERFACE    := bdd
-MOCHA.REPORTER     := min
-UGLIFY.CMD          = uglifyjs \$(UGLIFY.FLAGS)
-UGLIFY.FLAGS       := --mangle --compress
+CLEAN.CMD        = rm \$(CLEAN.FLAGS)
+CLEAN.FLAGS     := -rf
 
-#all: main
+COFFEE.CMD       = coffee \$(COFFEE.FLAGS)
+COFFEE.FLAGS    := --compile --no-header
 
-#main: \$(PROD_DEPS)
+GLUE.CMD         = glue \$(GLUE.FLAGS)
+GLUE.FLAGS      := --algorithm vertical
+GLUE.FLAGS      += --cachebuster
+GLUE.FLAGS      += --crop
+GLUE.FLAGS      += --css \$(SRC.STYLUS_DIR)/inc/sprites
+GLUE.FLAGS      += --css-template \$(SRC.JINJA_DIR)/css.jinja
+GLUE.FLAGS      += --follow-links
+GLUE.FLAGS      += --img \$(BUILD.IMG_DIR)
+GLUE.FLAGS      += --margin='0 0 10 0'
+GLUE.FLAGS      += --namespace=
+GLUE.FLAGS      += --ordering maxside
+GLUE.FLAGS      += --project
+GLUE.FLAGS      += --pseudo-class-separator __
+GLUE.FLAGS      += --separator camelcase
+GLUE.FLAGS      += --source \$(SRC.IMG_DIR)/sprites
+GLUE.FLAGS      += --sprite-namespace=
+GLUE.FLAGS      += --url=../img/
 
-dev: dev.coffee dev.jade dev.styl
+JADE.CMD         = jade \$(JADE.FLAGS)
+JADE.FLAGS      := --pretty
+
+MKDIRS.CMD       = mkdir \$(MKDIRS.FLAGS) \$(BUILD.DIRS)
+MKDIRS.FLAGS    := -p
+
+MOCHA.CMD        = mocha \$(MOCHA.FLAGS)
+MOCHA.FLAGS     := --compilers coffee:coffee-script/register
+MOCHA.FLAGS     += --require chai
+MOCHA.FLAGS     += --ui \$(MOCHA.INTERFACE)
+MOCHA.FLAGS     += --reporter \$(MOCHA.REPORTER)
+MOCHA.INTERFACE := bdd
+MOCHA.REPORTER  := min
+
+STYLUS.CMD       = stylus \$(STYLUS.FLAGS)
+STYLUS.FLAGS    := --use 'nib'
+STYLUS.FLAGS    += --include-css
+
+UGLIFY.CMD       = uglifyjs \$(UGLIFY.FLAGS)
+UGLIFY.FLAGS    := --mangle
+UGLIFY.FLAGS    += --compress
+
+all: prod
+
+dev: | \$(DEV_DEPS)
+
+dev.dirs:
+	cd \$(BUILD.DIR) && \$(MKDIRS.CMD)
 
 dev.coffee:
 	\$(COFFEE.CMD) --watch --output \$(BUILD.JS_DIR) \$(SRC.COFFEE_DIR)
+
+dev.glue:
+	\$(GLUE.CMD) --watch
 
 dev.jade:
 	\$(JADE.CMD) --watch \$(SRC.JADE_DIR) --out \$(BUILD.DIR)
@@ -200,27 +268,36 @@ dev.jade:
 dev.styl:
 	\$(STYLUS.CMD) --watch \$(SRC.STYLUS_DIR) --out \$(BUILD.CSS_DIR)
 
-prod: prod.coffee prod.jade prod.styl
+prod: | \$(PROD_DEPS)
+	@echo -e '\033[32mBuild Complete!\033[0m'
+
+prod.dirs:
+	@cd \$(BUILD.DIR) && \$(MKDIRS.CMD)
 
 prod.coffee:
 	@echo -e '\033[33mCompiling CoffeeScript...\033[0m'
-	\$(COFFEE.CMD) --output \$(BUILD.JS_DIR) \$(SRC.COFFEE_DIR)
-	\$(UGLIFY.CMD) # [<files to uglify>] --output outputFile.min.js
+	@\$(COFFEE.CMD) --output \$(BUILD.JS_DIR) \$(SRC.COFFEE_DIR) > /dev/null
+	@#\$(UGLIFY.CMD) [<files to uglify>] --output <outputFile.min.js> > /dev/null
+
+prod.glue:
+	@\$(GLUE.CMD) > /dev/null
 
 prod.jade:
 	@echo -e '\033[33mCompiling Jade...\033[0m'
-	\$(JADE.CMD) \$(SRC.JADE_DIR) --out \$(BUILD.DIR)
+	@\$(JADE.CMD) \$(SRC.JADE_DIR) --out \$(BUILD.DIR) > /dev/null
 
 prod.styl:
 	@echo -e '\033[33mCompiling Stylus...\033[0m'
-	\$(STYLUS.CMD) --compress \$(SRC.STYLUS_DIR) --out \$(BUILD.CSS_DIR)
+	@\$(STYLUS.CMD) --compress \$(SRC.STYLUS_DIR) --out \$(BUILD.CSS_DIR) > /dev/null
 
 #test:
 #	\$(MOCHA.CMD) -w \$(TEST.DIR)
 
-#clean:
-#	@echo -e '\033[33mCleaning...\033[0m'
-#	@rm -rf empty_file
-#	@echo -e '\033[32mProject Clean!\033[0m'
+clean:
+	@echo -e '\033[33mCleaning Project...\033[0m'
+	@\$(CLEAN.CMD)\\
+		\$(BUILD.DIR)/*\\
+		\$(SRC.STYLUS_DIR)/inc/sprites/*.css
+	@echo -e '\033[32mProject Clean!\033[0m'
 EOF
 fi
