@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+
+COMPANY_NAME='Karbon Industries'
+COMPANY_URL='karbonindustri.es'
+FULL_COMPANY_URL="http://${COMPANY_URL}"
+AUTHOR='Shammel Lee'
+
+# order of these variables is important...
+IS_SRC_DIR='src'
+IS_BUILD_DIR='build'
+IS_TEST_DIR="test"
+IS_COFFEE_DIR="${IS_SRC_DIR}/coffee"
+IS_CSS_DIR="${IS_BUILD_DIR}/css"
+IS_IMG_DIR="${IS_BUILD_DIR}/img"
+IS_JADE_DIR="${IS_SRC_DIR}/jade"
+IS_JS_DIR="${IS_BUILD_DIR}/js"
+IS_STYL_DIR="${IS_SRC_DIR}/styl"
+
+mkdir -p ${IS_TEST_DIR} ${IS_JADE_DIR} ${IS_COFFEE_DIR} ${IS_STYL_DIR} ${IS_CSS_DIR} ${IS_IMG_DIR} ${IS_JS_DIR}
+
+readme='Readme.md'
+if [ ! -e $readme ]
+then
+	cat <<EOF > $readme
+	# ${COMPANY_NAME}
+	[${COMPANY_URL}](${FULL_COMPANY_URL} "${COMPANY_NAME} website")
+	**author:** ${AUTHOR}
+	$(date)
+EOF
+fi
+
+makefile='Makefile'
+if [ ! -e $makefile ]
+then
+	cat <<EOF > $makefile
+	.PHONY: all clean main test
+
+	# CONFIG
+	SHELL     := /bin/bash
+	MAKEFLAGS  = -j \$(words \$(DEV_DEPS)) # limit parallel recipe execution
+
+	# DIRECTORIES
+	SRC_DIR   := ${IS_SRC_DIR}
+	BUILD_DIR := ${IS_BUILD_DIR}
+	TEST_DIR  := ${IS_TEST_DIR}
+	CSS_DIR    = \$(BUILD_DIR)/css
+	IMG_DIR    = \$(BUILD_DIR)/img
+	JS_DIR     = \$(BUILD_DIR)/js
+	JADE.DIR   = \$(SRC_DIR)/jade
+	COFFEE.DIR = \$(SRC_DIR)/coffee
+	STYLUS.DIR = \$(SRC_DIR)/styl
+	DEV_DEPS  := dev.jade dev.coffee dev.styl
+	PROD_DEPS  = \$(DEV_DEPS:dev.%=prod.%)
+
+	# COMMANDS
+	JADE.CMD         = jade \$(JADE.FLAGS)
+	JADE.FLAGS      := --pretty
+	COFFEE.CMD       = coffee \$(COFFEE.FLAGS)
+	COFFEE.FLAGS    := --compile --no-header
+	STYLUS.CMD       = stylus \$(STYLUS.FLAGS)
+	STYLUS.FLAGS    := --use 'nib'
+	MOCHA.CMD        = mocha \$(MOCHA.FLAGS)
+	MOCHA.FLAGS      = --compilers coffee:coffee-script/register --require chai --ui \$(MOCHA.INTERFACE) --reporter \$(MOCHA.REPORTER)
+	MOCHA.INTERFACE := bdd
+	MOCHA.REPORTER  := min
+
+	all: main
+
+	main:
+
+	test:
+		\$(MOCHA.CMD) -w \$(TEST_DIR)
+
+	clean:
+		#@echo -e '\033[33mCleaning...\033[0m'
+		#@rm -rf empty_file
+		#@echo -e '\033[32mProject Clean!\033[0m'
+EOF
+fi
