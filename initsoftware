@@ -141,7 +141,9 @@ fi
 # create .gitignore unless it exists
 if [[ ! -e .gitignore ]]
 then
-	touch .gitignore
+	cat <<EOF > .gitignore
+build
+EOF
 fi
 
 # create Readme.md unless it exists
