@@ -7,6 +7,20 @@
 # AUTHOR='your name'
 # AUTHOR_URL='your url'
 
+_tmp="${PROJECT_NAME:=$1}"
+_tmp="${PROJECT_NAME:=project name}"
+_tmp="${PROJECT_DESCRIPTION:=$2}"
+_tmp="${PROJECT_DESCRIPTION:=project description}"
+_tmp="${COMPANY_NAME:=$3}"
+_tmp="${COMPANY_NAME:=company name}"
+_tmp="${COMPANY_URL:=$4}"
+_tmp="${COMPANY_URL:=companyurl.com}"
+_tmp="${AUTHOR:=$5}"
+_tmp="${AUTHOR:=your name}"
+_tmp="${AUTHOR_URL:=$6}"
+_tmp="${AUTHOR_URL:=yoururl.com}"
+_tmp="${FULL_COMPANY_URL:=http://$COMPANY_URL}"
+
 # the order of these IS_* variables is important...
 IS_SRC_DIR='src'
 IS_BUILD_DIR='build'
@@ -154,9 +168,11 @@ readme='Readme.md'
 if [ ! -e $readme ]
 then
 cat <<-EOF > $readme
-	# Project Name
-	**Organization** [${COMPANY_NAME}][comanpyURL]
-	**Author** [${AUTHOR}][authorURL]
+	# ${PROJECT_NAME}
+	${PROJECT_DESCRIPTION}
+
+	* **Organization** [${COMPANY_NAME}][companyURL]
+	* **Author** [${AUTHOR}][authorURL]
 	$(date)
 
 	[companyURL]: ${FULL_COMPANY_URL}
