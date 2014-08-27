@@ -5,6 +5,7 @@
 # COMPANY_URL='your company url'
 # FULL_COMPANY_URL="http://${COMPANY_URL}" # adds 'http://' to COMPANY_URL
 # AUTHOR='your name'
+# AUTHOR_URL='your url'
 
 # the order of these IS_* variables is important...
 IS_SRC_DIR='src'
@@ -35,6 +36,8 @@ IS_BUILD_JS_DIR="${IS_BUILD_DIR}/${IS_BUILD_JS_NAME}"
 IS_BUILD_VENDOR_DIR="${IS_BUILD_DIR}/${IS_BUILD_VENDOR_NAME}"
 IS_BUILD_DIRS="${IS_BUILD_CSS_NAME} ${IS_BUILD_IMG_NAME} ${IS_BUILD_JS_NAME} ${IS_BUILD_VENDOR_NAME}"
 
+IS_IGNORE_PATHS="${IS_BUILD_DIR}"
+
 mkdir -p\
 	${IS_SRC_COFFEE_DIR}\
 	${IS_SRC_COFFEE_TEST_DIR}\
@@ -47,7 +50,6 @@ mkdir -p\
 	${IS_SRC_STYL_INC_DIR}\
 	${IS_SRC_STYL_TEST_DIR}\
 	${IS_SRC_VENDOR_DIR}\
-	${IS_BUILD_DIR}\
 	${IS_SUPPORT_DIR}\
 	${IS_TEST_DIR}
 
@@ -143,7 +145,7 @@ fi
 if [[ ! -e .gitignore ]]
 then
 	cat <<EOF > .gitignore
-build
+${IS_IGNORE_PATHS}
 EOF
 fi
 
@@ -152,10 +154,13 @@ readme='Readme.md'
 if [ ! -e $readme ]
 then
 cat <<-EOF > $readme
-	# ${COMPANY_NAME}
-	[${COMPANY_URL}](${FULL_COMPANY_URL} "${COMPANY_NAME} website")
-	**author:** ${AUTHOR}
+	# Project Name
+	**Organization** [${COMPANY_NAME}][comanpyURL]
+	**Author** [${AUTHOR}][authorURL]
 	$(date)
+
+	[companyURL]: ${FULL_COMPANY_URL}
+	[authorURL]: ${AUTHOR_URL}
 EOF
 fi
 
@@ -196,10 +201,10 @@ BUILD.CSS_DIR       = \$(BUILD.DIR)/\$(BUILD.CSS_NAME)
 BUILD.IMG_DIR       = \$(BUILD.DIR)/\$(BUILD.IMG_NAME)
 BUILD.JS_DIR        = \$(BUILD.DIR)/\$(BUILD.JS_NAME)
 BUILD.VENDOR_DIR    = \$(BUILD.DIR)/\$(BUILD.VENDOR_NAME)
-BUILD.DIRS         := \$(BUILD.CSS_NAME)
-BUILD.DIRS         += \$(BUILD.IMG_NAME)
-BUILD.DIRS         += \$(BUILD.JS_NAME)
-BUILD.DIRS         += \$(BUILD.VENDOR_NAME)
+BUILD.DIRS          = \$(BUILD.CSS_DIR)
+BUILD.DIRS         += \$(BUILD.IMG_DIR)
+BUILD.DIRS         += \$(BUILD.JS_DIR)
+BUILD.DIRS         += \$(BUILD.VENDOR_DIR)
 
 # DEPENDENCIES
 DEV_DEPS := dev.dirs dev.coffee dev.jade dev.styl
@@ -233,7 +238,7 @@ GLUE.FLAGS      += --url=../img/
 JADE.CMD         = jade \$(JADE.FLAGS)
 JADE.FLAGS      := --pretty
 
-MKDIRS.CMD       = mkdir \$(MKDIRS.FLAGS) \$(BUILD.DIRS)
+MKDIRS.CMD       = mkdir \$(MKDIRS.FLAGS)
 MKDIRS.FLAGS    := -p
 
 MOCHA.CMD        = mocha \$(MOCHA.FLAGS)
@@ -257,7 +262,7 @@ all: prod
 dev: | \$(DEV_DEPS)
 
 dev.dirs:
-	cd \$(BUILD.DIR) && \$(MKDIRS.CMD)
+	\$(MKDIRS.CMD) \$(BUILD.DIRS)
 
 dev.coffee:
 	\$(COFFEE.CMD) --watch --output \$(BUILD.JS_DIR) \$(SRC.COFFEE_DIR)
@@ -275,7 +280,7 @@ prod: | \$(PROD_DEPS)
 	@echo -e '\033[32mBuild Complete!\033[0m'
 
 prod.dirs:
-	@cd \$(BUILD.DIR) && \$(MKDIRS.CMD)
+	@\$(MKDIRS.CMD) \$(BUILD.DIRS)
 
 prod.coffee:
 	@echo -e '\033[33mCompiling CoffeeScript...\033[0m'
