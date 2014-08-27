@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 
-COMPANY_NAME='Karbon Industries'
-COMPANY_URL='karbonindustri.es'
-FULL_COMPANY_URL="http://${COMPANY_URL}"
-AUTHOR='Shammel Lee'
+# set these variables if you don't have access to environment variables
+# COMPANY_NAME='your company name'
+# COMPANY_URL='your company url'
+# FULL_COMPANY_URL="http://${COMPANY_URL}" # adds 'http://' to COMPANY_URL
+# AUTHOR='your name'
 
 # the order of these IS_* variables is important...
 IS_SRC_DIR='src'
