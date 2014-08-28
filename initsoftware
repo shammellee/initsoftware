@@ -191,7 +191,7 @@ cat <<EOF > $makefile
 SHELL    := /bin/bash
 MAKEFLAGS = -j \$(words \$(DEV_DEPS)) # limit parallel recipe execution
 
-# DIRECTORIES
+# PATHS
 SRC.DIR            := ${IS_SRC_DIR}
 BUILD.DIR          := ${IS_BUILD_DIR}
 SUPPORT.DIR        := ${IS_SUPPORT_DIR}
