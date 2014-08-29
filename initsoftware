@@ -173,7 +173,7 @@ cat <<-EOF > $readme
 
 	* **Organization** [${COMPANY_NAME}][companyURL]
 	* **Author** [${AUTHOR}][authorURL]
-	$(date)
+	* **Start Date** $(date)
 
 	[companyURL]: ${FULL_COMPANY_URL}
 	[authorURL]: ${AUTHOR_URL}
@@ -190,6 +190,15 @@ cat <<EOF > $makefile
 # CONFIG
 SHELL    := /bin/bash
 MAKEFLAGS = -j \$(words \$(DEV_DEPS)) # limit parallel recipe execution
+
+# COLORS
+COLORS.RED     := \033[31m
+COLORS.GREEN   := \033[32m
+COLORS.YELLOW  := \033[33m
+COLORS.BLUE    := \033[34m
+COLORS.MAGENTA := \033[35m
+COLORS.CYAN    := \033[36m
+COLORS.NORMAL  := \033[0m
 
 # PATHS
 SRC.DIR            := ${IS_SRC_DIR}
