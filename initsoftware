@@ -296,7 +296,7 @@ dev.glue:
 	\$(GLUE.CMD) --watch
 
 dev.jade:
-	\$(JADE.CMD) --watch \$(SRC.JADE_DIR) --out \$(BUILD.DIR)
+	\$(JADE.CMD) --watch \$(SRC.JADE_DIR)/*.jade --out \$(BUILD.DIR)
 
 dev.styl:
 	\$(STYLUS.CMD) --watch \$(SRC.STYLUS_DIR) --out \$(BUILD.CSS_DIR)
