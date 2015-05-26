@@ -188,8 +188,9 @@ cat <<EOF > $makefile
 .PHONY: all clean \$(DEV_DEPS) \$(PROD_DEPS) test
 
 # CONFIG
-SHELL    := /bin/bash
-MAKEFLAGS = -j \$(words \$(DEV_DEPS)) # limit parallel recipe execution
+SHELL         := /bin/bash
+MAKEFLAGS      = -j \$(words \$(DEV_DEPS)) # limit parallel recipe execution
+VAGRANT_IMAGE := ubuntu/trusty64
 
 # COLORS
 COLORS.RED     := \033[31m
@@ -282,6 +283,9 @@ UGLIFY.CMD       = uglifyjs \$(UGLIFY.FLAGS)
 UGLIFY.FLAGS    := --mangle
 UGLIFY.FLAGS    += --compress
 
+VAGRANT_INIT.CMD = vagrant init
+
+# TARGETS
 all: prod
 
 dev: | \$(DEV_DEPS)
@@ -300,6 +304,9 @@ dev.jade:
 
 dev.styl:
 	\$(STYLUS.CMD) --watch \$(SRC.STYLUS_DIR) --out \$(BUILD.CSS_DIR)
+
+dev.vagrant_init:
+	\$(VAGRANT_INIT.CMD) \$(VAGRANT_IMAGE)
 
 prod: | \$(PROD_DEPS)
 	@echo -e '\033[32mBuild Complete!\033[0m'
