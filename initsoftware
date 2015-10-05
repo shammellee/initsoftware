@@ -159,7 +159,9 @@ fi
 if [[ ! -e .gitignore ]]
 then
 	cat <<EOF > .gitignore
-${IS_IGNORE_PATHS}
+${IS_BUILD_DIR}
+*.swp
+*.swo
 EOF
 fi
 
