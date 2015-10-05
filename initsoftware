@@ -18,12 +18,12 @@ _tmp="${COMPANY_URL:=companyurl.com}"
 _tmp="${AUTHOR:=$5}"
 _tmp="${AUTHOR:=your name}"
 _tmp="${AUTHOR_URL:=$6}"
-_tmp="${AUTHOR_URL:=yoururl.com}"
+_tmp="${FULL_AUTHOR_URL:=http://$AUTHOR_URL}"
 _tmp="${FULL_COMPANY_URL:=http://$COMPANY_URL}"
 
 # the order of these IS_* variables is important...
 IS_SRC_DIR='src'
-IS_BUILD_DIR='build'
+IS_BUILD_DIR='public'
 IS_SUPPORT_DIR='support'
 IS_TEST_DIR='test'
 
@@ -176,7 +176,7 @@ cat <<-EOF > $readme
 	* **Start Date** $(date)
 
 	[companyURL]: ${FULL_COMPANY_URL}
-	[authorURL]: ${AUTHOR_URL}
+	[authorURL]: ${FULL_AUTHOR_URL}
 EOF
 fi
 
@@ -309,13 +309,13 @@ dev.vagrant_init:
 	\$(VAGRANT_INIT.CMD) \$(VAGRANT_IMAGE)
 
 prod: | \$(PROD_DEPS)
-	@echo -e '\033[32mBuild Complete!\033[0m'
+	@echo -e '\$(COLORS.GREEN)Build Complete!\$(COLORS.NORMAL)'
 
 prod.dirs:
 	@\$(MKDIRS.CMD) \$(BUILD.DIRS)
 
 prod.coffee:
-	@echo -e '\033[33mCompiling CoffeeScript...\033[0m'
+@echo -e '\$(COLORS.YELLOW)Compiling CoffeeScript...\$(COLORS.NORMAL)'
 	@\$(COFFEE.CMD) --output \$(BUILD.JS_DIR) \$(SRC.COFFEE_DIR) > /dev/null
 	@#\$(UGLIFY.CMD) [<files to uglify>] --output <outputFile.min.js> > /dev/null
 
@@ -323,21 +323,21 @@ prod.glue:
 	@\$(GLUE.CMD) > /dev/null
 
 prod.jade:
-	@echo -e '\033[33mCompiling Jade...\033[0m'
+	@echo -e '\$(COLORS.YELLOW)Compiling Jade...\$(COLORS.NORMAL)'
 	@\$(JADE.CMD) \$(SRC.JADE_DIR) --out \$(BUILD.DIR) > /dev/null
 
 prod.styl:
-	@echo -e '\033[33mCompiling Stylus...\033[0m'
+	@echo -e '\$(COLORS.YELLOW)Compiling Stylus...\$(COLORS.NORMAL)'
 	@\$(STYLUS.CMD) --compress \$(SRC.STYLUS_DIR) --out \$(BUILD.CSS_DIR) > /dev/null
 
 #test:
 #	\$(MOCHA.CMD) -w \$(TEST.DIR)
 
 clean:
-	@echo -e '\033[33mCleaning Project...\033[0m'
+	@echo -e '\$(COLORS.YELLOW)Cleaning Project...\$(COLORS.NORMAL)'
 	@\$(CLEAN.CMD)\\
 		\$(BUILD.DIR)/*\\
 		\$(SRC.STYLUS_DIR)/inc/sprites/*.css
-	@echo -e '\033[32mProject Clean!\033[0m'
+	@echo -e '\$(COLORS.GREEN)Project Clean!\$(COLORS.NORMAL)'
 EOF
 fi
