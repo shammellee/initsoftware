@@ -160,6 +160,7 @@ if [[ ! -e .gitignore ]]
 then
 	cat <<EOF > .gitignore
 ${IS_BUILD_DIR}
+**/node_modules
 *.swp
 *.swo
 EOF
