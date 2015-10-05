@@ -318,7 +318,7 @@ prod.dirs:
 	@\$(MKDIRS.CMD) \$(BUILD.DIRS)
 
 prod.coffee:
-@echo -e '\$(COLORS.YELLOW)Compiling CoffeeScript...\$(COLORS.NORMAL)'
+	@echo -e '\$(COLORS.YELLOW)Compiling CoffeeScript...\$(COLORS.NORMAL)'
 	@\$(COFFEE.CMD) --output \$(BUILD.JS_DIR) \$(SRC.COFFEE_DIR) > /dev/null
 	@#\$(UGLIFY.CMD) [<files to uglify>] --output <outputFile.min.js> > /dev/null
 
